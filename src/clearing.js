@@ -7,10 +7,13 @@ const fetch = require('node-fetch');
 module.exports = {
 	async clearingRules(submission, filename) {
 		filename = filename || 'ruledefault';
-		let res =  await fetch(SERVICES.ruleEngine + '/clearingrules/ruledefault', {
+		let res =  await fetch(SERVICES.ruleEngine + 'clearingrules/ruledefault', {
 			method: 'POST',
-			body: JSON.stringify(submission)
+            body: JSON.stringify(submission),
+            headers: { 'Content-Type': 'application/json' }
         });
-        return await res.json();
+        let result =  await res.json();
+        console.log(result);
+        return result;
 	}
 };
