@@ -1,0 +1,25 @@
+{
+  "name": "clearing-manager-svc",
+  "version": "1.0.0",
+  "description": "clearing-manager-svc",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "nodemon --ext js src/server.js",
+    "start": "node src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sidenis/clearing-manager-svc.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sidenis/clearing-manager-svc/issues"
+  },
+  "homepage": "https://github.com/Sidenis/clearing-manager-svc#readme",
+  "dependencies": {
+    "apollo-server": "^2.6.3",
+    "graphql": "^14.3.1"
+  }
+}
