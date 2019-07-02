@@ -7,29 +7,39 @@ const {clearingRules} = require('./clearing');
 // which ways the data can be fetched from the GraphQL server.
 const typeDefs = gql`
 
+  enum LOB{
+    LIABILITY, PROPERTY
+  }
+  enum PERIL{
+    FIRE, NAT_CAT, TERRORISM
+  }
 	input GeolocationInput {
 		long: Float!
 		lat: Float!
 	}
 
-	type GeoLoaction {
+	type GeoLocation {
 		long: Float!
 		lat: Float!
 	}
 
 	type Submission {
-		id: ID!
-    lob: Int! 
+    id:ID!
+    lob: LOB!
     country: String! 
-    insured: String!
-    geolocation: GeoLoaction!
+    insuredCompany: String!
+    address: GeoLocation
+    broker:String!
+    peril: PERIL!
 	}
 
   input SubmissionInput{
-    lob: Int! 
+    lob: LOB!
     country: String! 
-    insured: String!
-    geolocation: GeolocationInput
+    insuredCompany: String!
+    address: GeolocationInput
+    broker:String!
+    peril:PERIL!
   }
 
   type Mutation{
