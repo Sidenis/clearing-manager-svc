@@ -20,6 +20,7 @@
   "homepage": "https://github.com/Sidenis/clearing-manager-svc#readme",
   "dependencies": {
     "apollo-server": "^2.6.3",
-    "graphql": "^14.3.1"
+    "graphql": "^14.3.1",
+    "node-fetch": "^2.6.0"
   }
 }

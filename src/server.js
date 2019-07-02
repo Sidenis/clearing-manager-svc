@@ -2,7 +2,7 @@ const { ApolloServer, gql } = require('apollo-server');
 const fs = require('fs');
 const persistSubmission = require('./persistence');
 const PORT = process.env.PORT || 3000;
-
+const {clearingRules} = require('./clearing');
 // Type definitions define the "shape" of your data and specify
 // which ways the data can be fetched from the GraphQL server.
 const typeDefs = gql`
@@ -12,11 +12,11 @@ const typeDefs = gql`
 		lat: Float!
 	}
 
-
 	type GeoLoaction {
 		long: Float!
 		lat: Float!
 	}
+
 	type Submission {
 		id: ID!
     lob: Int! 
@@ -38,6 +38,7 @@ const typeDefs = gql`
 
 	type Query {
     submissions:[Submission]
+    clearingRules(file:String):[String]
   }
 `;
 
@@ -54,9 +55,13 @@ const resolvers = {
   },
 	Query: {
     submissions:(_,{})=>{
-      console.log(db);
       return db;
+    },
+    clearingRules:(_,{})=>{
+      return ["RULE1"];
     }
+    
+    
 	}
 };
 
