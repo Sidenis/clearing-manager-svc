@@ -2,7 +2,7 @@ const { ApolloServer, gql, PubSub } = require('apollo-server');
 const fs = require('fs');
 const persistSubmission = require('./persistence');
 const PORT = process.env.PORT || 3000;
-const { clearingRules } = require('./clearing');
+const { clearingRules, clearWithRules } = require('./clearing');
 // Type definitions define the "shape" of your data and specify
 // which ways the data can be fetched from the GraphQL server.
 const typeDefs = gql`
@@ -24,8 +24,28 @@ const typeDefs = gql`
 	}
 
 	type RuleApplied {
-		rule:String
-		status:STATUS
+		rule: String
+		status: STATUS
+	}
+
+	type Submission {
+		id: ID!
+		lob: LOB!
+		country: String!
+		insuredCompany: String!
+		address: String!
+		broker: String!
+		peril: PERIL!
+		rules: [RuleApplied]!
+	}
+
+	input SubmissionInput {
+		lob: LOB!
+		country: String!
+		insuredCompany: String!
+		address: String!
+		broker: String!
+		peril: PERIL!
 	}
 
 	input GeolocationInput {
@@ -38,26 +58,6 @@ const typeDefs = gql`
 		lat: Float!
 	}
 
-	type Submission {
-		id: ID!
-		lob: LOB!
-		country: String!
-		insuredCompany: String!
-		address: String!
-		broker: String!
-		peril: PERIL!
-		rules:[RuleApplied]!
-	}
-
-	input SubmissionInput {
-		lob: LOB!
-		country: String!
-		insuredCompany: String!
-		address: String!
-		broker: String!
-		peril: PERIL!
-	}
-
 	type Subscription {
 		clearingStatusChanged: Subscription
 	}
@@ -68,13 +68,40 @@ const typeDefs = gql`
 
 	type Query {
 		submissions: [Submission]
-		getSubmission(id:ID!):Submission
+		getSubmission(id: ID!): Submission
 		clearingRules(submission: SubmissionInput, filename: String): [String]
 	}
 `;
+const TIMEOUT = 2000;
+let currentSub = undefined;
+let lastSub = 0;
+let db = [];
+
+setInterval(() => {
+	if (!currentSub) {
+		 currentSub = db[lastSub];
+		if (currentSub) {
+			console.log(`submitting ${currentSub.id}`);
+		}
+	} 
+	else {
+		console.log("get current subs status");
+		let p = currentSub.rules.findIndex(i => i.status === "PROGRESS");
+		if(p!==-1){
+			currentSub.rules[p].status = (Math.random() <=0.5)?'DONE':'MANUAL';
+		}
+		else{
+			console.log(`${currentSub.id} processed`);
+			console.log(currentSub.rules);
+			currentSub = undefined;
+			lastSub++;
+		}
+		
+	}
+	
+}, TIMEOUT);
 
 const CLEARING_STATUS_CHANGED = 'CLEARING_STATUS_CHANGED';
-let db = [];
 
 // Resolvers define the technique for fetching the types in the
 // schema.  We'll retrieve books from the "books" array above.
@@ -83,12 +110,12 @@ const resolvers = {
 		submission: async (_, { submission }) => {
 			let sub = persistSubmission(db, submission);
 			let rules = await clearingRules(submission);
-			console.log(rules);
-			sub.rules = rules.map((r)=>{
+
+			sub.rules = rules.map((r) => {
 				return {
-					rule:r,
-					status:'PROGRESS'
-				}
+					rule: r,
+					status: 'PROGRESS'
+				};
 			});
 			return sub;
 		}
@@ -106,10 +133,8 @@ const resolvers = {
 		clearingRules: async (_, { submission, filename }) => {
 			return await clearingRules(submission, filename);
 		},
-		getSubmission:(_,{id})=>{
-		
+		getSubmission: (_, { id }) => {
 			let res = db[id];
-
 			return res;
 		}
 	}

@@ -16,8 +16,8 @@ module.exports = {
     
         return result;
     },
-    async clearWithRules(submission, rules){
-        let res =  await fetch(SERVICES.ruleEngine + 'clearingrules/ruledefault', {
+    async clearWithRules(submission){
+        let res =  await fetch(SERVICES.clearingService + 'graphql', {
 			method: 'POST',
             body: JSON.stringify(submission),
             headers: { 'Content-Type': 'application/json' }
@@ -26,4 +26,6 @@ module.exports = {
     
         return result;
     }
+
+    
 };
