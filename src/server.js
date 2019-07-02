@@ -59,11 +59,12 @@ const typeDefs = gql`
 	}
 
 	type Subscription {
-		clearingStatusChanged: Subscription
+		clearingStatusChanged(id:ID): Submission
 	}
 
 	type Mutation {
 		submission(submission: SubmissionInput): Submission
+		cleanDb:Boolean
 	}
 
 	type Query {
@@ -76,6 +77,7 @@ const TIMEOUT = 2000;
 let currentSub = undefined;
 let lastSub = 0;
 let db = [];
+let pubsub = new PubSub();
 
 setInterval(() => {
 	if (!currentSub) {
@@ -89,6 +91,7 @@ setInterval(() => {
 		let p = currentSub.rules.findIndex(i => i.status === "PROGRESS");
 		if(p!==-1){
 			currentSub.rules[p].status = (Math.random() <=0.5)?'DONE':'MANUAL';
+			pubsub.publish(CLEARING_STATUS_CHANGED,{clearingStatusChanged:currentSub});
 		}
 		else{
 			console.log(`${currentSub.id} processed`);
@@ -118,6 +121,12 @@ const resolvers = {
 				};
 			});
 			return sub;
+		},
+		cleanDb: (_,{})=>{
+			db = [];
+			currentSub = undefined;
+			lastSub = 0;
+			return true;
 		}
 	},
 	Subscription: {
