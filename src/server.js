@@ -70,6 +70,7 @@ let db = [];
 const resolvers = {
 	Mutation: {
 		submission: (_, { submission }) => {
+      submission.status = 'PROGRESS';
 			let sub = persistSubmission(db, submission);
 			return sub;
 		}
