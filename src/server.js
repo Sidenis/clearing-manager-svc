@@ -1,4 +1,4 @@
-const { ApolloServer, gql } = require('apollo-server');
+const { ApolloServer, gql, PubSub } = require('apollo-server');
 const fs = require('fs');
 const persistSubmission = require('./persistence');
 const PORT = process.env.PORT || 3000;
@@ -53,6 +53,10 @@ const typeDefs = gql`
 		peril: PERIL!
 	}
 
+	type Subscription  {
+		clearingStatusChanged:Subscription
+	}
+
 	type Mutation {
 		submission(submission: SubmissionInput): Submission
 	}
@@ -63,6 +67,7 @@ const typeDefs = gql`
 	}
 `;
 
+const CLEARING_STATUS_CHANGED = "CLEARING_STATUS_CHANGED";
 let db = [];
 
 // Resolvers define the technique for fetching the types in the
@@ -75,6 +80,12 @@ const resolvers = {
 			return sub;
 		}
 	},
+	Subscription: {
+		clearingStatusChanged: {
+		  // Additional event labels can be passed to asyncIterator creation
+		  subscribe: () => pubsub.asyncIterator([CLEARING_STATUS_CHANGED]),
+		},
+	  },
 	Query: {
 		submissions: (_, {}) => {
 			return db;
