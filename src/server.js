@@ -1,5 +1,6 @@
 const { ApolloServer, gql } = require('apollo-server');
-
+const fs = require('fs');
+const persistSubmission = require('./persistence');
 const PORT = process.env.PORT || 3000;
 
 // Type definitions define the "shape" of your data and specify
@@ -11,8 +12,17 @@ const typeDefs = gql`
 		lat: Float!
 	}
 
+
+	type GeoLoaction {
+		long: Float!
+		lat: Float!
+	}
 	type Submission {
 		id: ID!
+    lob: Int! 
+    country: String! 
+    insured: String!
+    geolocation: GeoLoaction!
 	}
 
   input SubmissionInput{
@@ -31,19 +41,21 @@ const typeDefs = gql`
   }
 `;
 
-
+let db = [];
 
 // Resolvers define the technique for fetching the types in the
 // schema.  We'll retrieve books from the "books" array above.
 const resolvers = {
   Mutation:{
-    submission: (_, { submission}) => {
-			return { id: 1 };
+    submission: (_, { submission }) => {
+      let sub  = persistSubmission(db,submission);
+			return sub
 		}
   },
 	Query: {
     submissions:(_,{})=>{
-      return [];
+      console.log(db);
+      return db;
     }
 	}
 };
