@@ -23,6 +23,11 @@ const typeDefs = gql`
 		TERRORISM
 	}
 
+	type RuleApplied {
+		rule:String
+		status:STATUS
+	}
+
 	input GeolocationInput {
 		long: Float!
 		lat: Float!
@@ -41,7 +46,7 @@ const typeDefs = gql`
 		address: String!
 		broker: String!
 		peril: PERIL!
-		status: STATUS!
+		rules:[RuleApplied]!
 	}
 
 	input SubmissionInput {
@@ -63,6 +68,7 @@ const typeDefs = gql`
 
 	type Query {
 		submissions: [Submission]
+		getSubmission(id:ID!):Submission
 		clearingRules(submission: SubmissionInput, filename: String): [String]
 	}
 `;
@@ -74,9 +80,16 @@ let db = [];
 // schema.  We'll retrieve books from the "books" array above.
 const resolvers = {
 	Mutation: {
-		submission: (_, { submission }) => {
-			submission.status = 'PROGRESS';
+		submission: async (_, { submission }) => {
 			let sub = persistSubmission(db, submission);
+			let rules = await clearingRules(submission);
+			console.log(rules);
+			sub.rules = rules.map((r)=>{
+				return {
+					rule:r,
+					status:'PROGRESS'
+				}
+			});
 			return sub;
 		}
 	},
@@ -92,6 +105,12 @@ const resolvers = {
 		},
 		clearingRules: async (_, { submission, filename }) => {
 			return await clearingRules(submission, filename);
+		},
+		getSubmission:(_,{id})=>{
+			console.log(id);
+			let res = db[id];
+			console.log(res);
+			return res;
 		}
 	}
 };

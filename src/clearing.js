@@ -13,7 +13,17 @@ module.exports = {
             headers: { 'Content-Type': 'application/json' }
         });
         let result =  await res.json();
-        console.log(result);
+    
         return result;
-	}
+    },
+    async clearWithRules(submission, rules){
+        let res =  await fetch(SERVICES.ruleEngine + 'clearingrules/ruledefault', {
+			method: 'POST',
+            body: JSON.stringify(submission),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        let result =  await res.json();
+    
+        return result;
+    }
 };
