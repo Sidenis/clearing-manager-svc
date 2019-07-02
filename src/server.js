@@ -107,9 +107,9 @@ const resolvers = {
 			return await clearingRules(submission, filename);
 		},
 		getSubmission:(_,{id})=>{
-			console.log(id);
+		
 			let res = db[id];
-			console.log(res);
+
 			return res;
 		}
 	}
