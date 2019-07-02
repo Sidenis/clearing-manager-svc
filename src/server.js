@@ -11,12 +11,12 @@ const typeDefs = gql`
 		PROPERTY
 	}
 
-  enum STATUS{
-    DONE
-    PROGRESS
-    MANUAL
+	enum STATUS {
+		DONE
+		PROGRESS
+		MANUAL
+	}
 
-  }
 	enum PERIL {
 		FIRE
 		NAT_CAT
@@ -38,23 +38,23 @@ const typeDefs = gql`
 		lob: LOB!
 		country: String!
 		insuredCompany: String!
-		address: GeoLocation
+		address: String!
 		broker: String!
 		peril: PERIL!
-    status:STATUS!
+		status: STATUS!
 	}
 
 	input SubmissionInput {
 		lob: LOB!
 		country: String!
 		insuredCompany: String!
-		address: GeolocationInput
+		address: String!
 		broker: String!
 		peril: PERIL!
 	}
 
-	type Subscription  {
-		clearingStatusChanged:Subscription
+	type Subscription {
+		clearingStatusChanged: Subscription
 	}
 
 	type Mutation {
@@ -63,11 +63,11 @@ const typeDefs = gql`
 
 	type Query {
 		submissions: [Submission]
-		clearingRules(submission:SubmissionInput, filename: String): [String]
+		clearingRules(submission: SubmissionInput, filename: String): [String]
 	}
 `;
 
-const CLEARING_STATUS_CHANGED = "CLEARING_STATUS_CHANGED";
+const CLEARING_STATUS_CHANGED = 'CLEARING_STATUS_CHANGED';
 let db = [];
 
 // Resolvers define the technique for fetching the types in the
@@ -75,17 +75,17 @@ let db = [];
 const resolvers = {
 	Mutation: {
 		submission: (_, { submission }) => {
-      submission.status = 'PROGRESS';
+			submission.status = 'PROGRESS';
 			let sub = persistSubmission(db, submission);
 			return sub;
 		}
 	},
 	Subscription: {
 		clearingStatusChanged: {
-		  // Additional event labels can be passed to asyncIterator creation
-		  subscribe: () => pubsub.asyncIterator([CLEARING_STATUS_CHANGED]),
-		},
-	  },
+			// Additional event labels can be passed to asyncIterator creation
+			subscribe: () => pubsub.asyncIterator([ CLEARING_STATUS_CHANGED ])
+		}
+	},
 	Query: {
 		submissions: (_, {}) => {
 			return db;
