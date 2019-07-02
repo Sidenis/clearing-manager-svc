@@ -11,6 +11,12 @@ const typeDefs = gql`
 		PROPERTY
 	}
 
+  enum STATUS{
+    DONE
+    PROGRESS
+    MANUAL
+
+  }
 	enum PERIL {
 		FIRE
 		NAT_CAT
@@ -35,6 +41,7 @@ const typeDefs = gql`
 		address: GeoLocation
 		broker: String!
 		peril: PERIL!
+    status:STATUS!
 	}
 
 	input SubmissionInput {
@@ -52,7 +59,7 @@ const typeDefs = gql`
 
 	type Query {
 		submissions: [Submission]
-		clearingRules(file: String): [String]
+		clearingRules(submission:SubmissionInput, filename: String): [String]
 	}
 `;
 
@@ -72,7 +79,7 @@ const resolvers = {
 			return db;
 		},
 		clearingRules: async (_, { submission, filename }) => {
-			return await this.clearingRules(submission, filename);
+			return await clearingRules(submission, filename);
 		}
 	}
 };
