@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wp2-clearing-manager-svc
+  namespace: test-project
+  labels:
+    app: wp2-clearing-manager-svc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wp2-clearing-manager-svc
+
+  template:
+    metadata:
+      labels:
+        app: wp2-clearing-manager-svc
+    spec:
+
+      containers:
+
+        - name: wp2-clearing-manager-svc
+          image: acrtestproject.azurecr.io/clearing-manager-svc:latest
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wp2-clearing-manager-svc-service
+  namespace: test-project
+  labels:
+    app: wp2-clearing-manager-svc
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+  selector:
+    app: wp2-clearing-manager-svc
+  type: LoadBalancer
